@@ -1,0 +1,15 @@
+#!/usr/bin/python
+
+import sys, string, random
+
+def main():
+	if len(sys.argv) < 2: return
+	
+	pass_len = sys.argv[1]
+	letters = string.ascii_letters + string.punctuation + string.digits
+	res = ""
+	for i in range(int(pass_len)): res += letters[random.randrange(len(letters))]
+
+	print(res)
+
+if __name__ == "__main__": main()
