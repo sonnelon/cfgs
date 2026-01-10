@@ -55,10 +55,14 @@ def draw_levels(level, prefix=""):
         print(prefix + connector + entry)
 
 def main():
-	escape_names = sys.argv if len(sys.argv) > 1 else []
-	level = Level(name=os.getcwd(), path=".")
-	fill_levels(level, escape_names[1:] if len(escape_names) > 0 else [])
-	draw_levels(level)
+    escape_names = sys.argv if len(sys.argv) > 1 else []
+
+    main_level_path = os.getcwd()
+    main_level_name = main_level_path.split("/")[-1]
+    level = Level(name=main_level_name, path=".")
+
+    fill_levels(level, escape_names[1:] if len(escape_names) > 0 else [])
+    draw_levels(level)
 
 if __name__ == "__main__":
 	try:
