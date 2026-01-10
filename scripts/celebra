@@ -1,0 +1,67 @@
+#!/usr/bin/python
+
+import os, sys
+from typing import Optional, List
+from dataclasses import dataclass, field
+
+@dataclass
+class Level:
+	name: str
+	path: str
+	prev: Optional["Level"] = None
+	files: List[str] = field(default_factory=list)
+	next_levels: List["Level"] = field(default_factory=list)
+
+def is_dir(name: str): return os.path.isdir(name)
+
+def pass_file(name: str, escape_names: List[str]):
+	if len(escape_names) == 0: return False
+	for i in range(len(escape_names)):
+		if name == escape_names[i]:
+			del escape_names[i]
+			return True
+	return False
+
+def fill_levels(current_level: Level, escape_names: List[str]):
+	all_items = os.listdir(current_level.path)
+	for i in range(len(all_items)):
+		current_path = os.path.join(current_level.path, all_items[i])
+		if is_dir(current_path):
+			if pass_file(all_items[i], escape_names): continue
+			level = Level(name=all_items[i], path=current_path, prev=current_level)
+			fill_levels(level, escape_names)
+			current_level.next_levels.append(level)
+			continue
+
+		current_level.files.append(all_items[i])
+
+def draw_levels(level, prefix=""):
+    print(prefix + level.name)
+
+    entries = [
+        *(("dir", sub) for sub in level.next_levels),
+        *(("file", f) for f in level.files),
+    ]
+
+    for i, (kind, entry) in enumerate(entries):
+        is_last = i == len(entries) - 1
+        connector = "└── " if is_last else "├── "
+        new_prefix = prefix + ("    " if is_last else "│   ")
+
+        if kind == "dir":
+            draw_levels(entry, prefix + connector)
+            continue
+		
+        print(prefix + connector + entry)
+
+def main():
+	escape_names = sys.argv if len(sys.argv) > 1 else []
+	level = Level(name=os.getcwd(), path=".")
+	fill_levels(level, escape_names[1:] if len(escape_names) > 0 else [])
+	draw_levels(level)
+
+if __name__ == "__main__":
+	try:
+		main()
+	except KeyboardInterrupt: 
+		print("\nExited.")
